@@ -1,0 +1,86 @@
+<main>
+  <app-drawer></app-drawer>
+
+  <div
+    class="flex justify-center items-center min-h-screen bg-base-200 font-sans transition-colors duration-300"
+  >
+    <div class="card bg-base-100 p-12 rounded-[40px] w-full max-w-[400px] text-center shadow-xl">
+      <h2 class="text-3xl font-bold mb-8 text-base-content">Sign In</h2>
+
+      @if (errorMessage()) {
+        <div
+          class="alert alert-error mb-6 p-3 text-sm text-white flex justify-center shadow-lg rounded-[20px]"
+        >
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="loading loading-spinner loading-md mx-auto mb-6"></div>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <div class="mb-5 text-left">
+          <input
+            formControlName="email"
+            class="input w-full p-4 rounded-[50px] bg-base-200 text-base-content placeholder-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all border-none"
+            [class.input-error]="
+              loginForm.controls['email']?.invalid && loginForm.controls['email']?.touched
+            "
+            type="email"
+            placeholder="Email"
+          />
+
+          @if (loginForm.controls['email']?.invalid && loginForm.controls['email']?.touched) {
+            <span class="text-error text-xs ml-4 mt-1 block">Correo inválido</span>
+          }
+        </div>
+
+        <div class="mb-8 text-left">
+          <div class="relative">
+            <input
+              [formControlName]="'password'"
+              class="input w-full p-4 rounded-[50px] bg-base-200 text-base-content placeholder-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all border-none pr-12"
+              [class.input-error]="
+                loginForm.controls['password']?.invalid && loginForm.controls['password']?.touched
+              "
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="Password"
+            />
+
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute right-4 top-1/2 -translate-y-1/2 btn btn-ghost btn-circle btn-sm hover:bg-base-300"
+            >
+              <i
+                [class]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye' + ' text-lg'"
+              ></i>
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loginForm.invalid || loading()"
+          class="btn w-full py-4 mb-4 rounded-[50px] bg-base-300 text-base-content font-bold tracking-wide uppercase hover:bg-base-content hover:text-base-100 border-none shadow-lg transition-all cursor-pointer h-auto min-h-[3rem] disabled:opacity-50"
+        >
+          Sign in
+        </button>
+      </form>
+
+      <div class="divider my-4">o</div>
+      <div #googleBtn class="flex justify-center"></div>
+
+      <div class="text-sm text-base-content/70 mt-6">
+        <p class="inline">No account yet?</p>
+        <a
+          routerLink="/register"
+          class="link link-primary font-bold no-underline hover:text-primary-focus cursor-pointer"
+        >
+          Create first admin
+        </a>
+      </div>
+    </div>
+  </div>
+</main>

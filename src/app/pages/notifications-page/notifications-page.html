@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-base-100 p-6">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Lista de notificaciones -->
+        <div class="lg:col-span-1">
+            <h2 class="text-2xl font-bold mb-4">Notificaciones</h2>
+            <div class="space-y-2 max-h-96 overflow-y-auto">
+                @if (allNotifications().length === 0) {
+                <p class="text-center text-base-content/60 py-6">No hay notificaciones</p>
+                } @else {
+                @for (notification of allNotifications(); track notification.id) {
+                <div (click)="selectNotification(notification)"
+                    [class.bg-primary/20]="selectedNotification()?.id === notification.id"
+                    class="p-4 bg-base-200 hover:bg-base-300 cursor-pointer rounded-lg transition">
+                    <p class="font-semibold text-sm">{{ notification.title }}</p>
+                    <p class="text-xs text-base-content/70 mt-1">{{ notification.message }}</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs text-base-content/50">{{ notification.createdAt | date: 'short' }}</span>
+                        <span class="badge"
+                            [className]="notification.status === 'PENDIENTE' ? 'badge-warning' : notification.status === 'APROBADA' ? 'badge-success' : 'badge-error'">
+                            {{ notification.status }}
+                        </span>
+                    </div>
+                </div>
+                }
+                }
+            </div>
+        </div>
+
+        <!-- Detalle y respuesta -->
+        <div class="lg:col-span-2">
+            @if (selectedNotification()) {
+            <div class="card bg-base-200 shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-xl">{{ selectedNotification()!.title }}</h3>
+
+                    <p class="text-base-content/80">{{ selectedNotification()!.message }}</p>
+
+                    <div class="divider"></div>
+
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="opacity-60">Estado</p>
+                            <span class="badge"
+                                [className]="selectedNotification()!.status === 'PENDIENTE' ? 'badge-warning' : selectedNotification()!.status === 'APROBADA' ? 'badge-success' : 'badge-error'">
+                                {{ selectedNotification()!.status }}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="opacity-60">Fecha</p>
+                            <p>{{ selectedNotification()!.createdAt | date: 'medium' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Form para responder (solo si el usuario es programador) -->
+                    @if (authService.currentUser()?.role === 'programmer' && selectedNotification()!.status ===
+                    'PENDIENTE') {
+                    <div>
+                        <label class="form-control w-full">
+                            <div class="label">
+                                <span class="label-text font-semibold">Tu respuesta</span>
+                            </div>
+                            <textarea [ngModel]="responseText()" (ngModelChange)="responseText.set($event)"
+                                placeholder="Escribe tu respuesta aquí..."
+                                class="textarea textarea-bordered h-24"></textarea>
+                        </label>
+                    </div>
+
+                    <div class="card-actions justify-end mt-4">
+                        <button (click)="respondToNotification()" [disabled]="isLoading()" class="btn btn-primary">
+                            @if (isLoading()) {
+                            <span class="loading loading-spinner"></span>
+                            }
+                            Enviar respuesta
+                        </button>
+                        <button (click)="deleteNotification(selectedNotification()!.id)" class="btn btn-ghost">
+                            Descartar
+                        </button>
+                    </div>
+                    } @else {
+                    <p class="text-center text-base-content/60 py-6">No hay acciones disponibles</p>
+                    }
+                </div>
+            </div>
+            } @else {
+            <div class="text-center text-base-content/60 py-12">
+                <p class="text-lg">Selecciona una notificación para ver detalles</p>
+            </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,152 @@
+<div class="drawer">
+  <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col">
+    <div class="navbar bg-base-300 w-full px-4 shadow-sm">
+
+      <div class="flex-none lg:hidden">
+        <label for="my-drawer-2" aria-label="open sidebar" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            class="inline-block h-6 w-6 stroke-current">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </label>
+      </div>
+
+      <div class="mx-2 flex-1 px-2 font-bold text-lg">Dev-Solutions</div>
+
+      <div class="hidden flex-none lg:block">
+        <ul class="menu menu-horizontal gap-2">
+          <li *ngIf="isHome()">
+            <a class="btn btn-ghost btn-sm" (click)="scrollToSection('home')">Home</a>
+          </li>
+          <li *ngIf="isHome()">
+            <a class="btn btn-ghost btn-sm" (click)="scrollToSection('profiles')">Profiles</a>
+          </li>
+          <li *ngIf="isHome()">
+            <a class="btn btn-ghost btn-sm" (click)="scrollToSection('projects')">Projects</a>
+          </li>
+
+          <li *ngIf="!isHome()">
+            <a class="btn btn-ghost btn-sm" routerLink="/">Volver al Inicio</a>
+          </li>
+
+          @if (userService.userProfile()?.role === 'admin' || userService.userProfile()?.role === 'programmer') {
+          <li>
+            <a class="btn btn-ghost btn-sm" [routerLink]="getDashboardRoute()">Mi Panel</a>
+          </li>
+          }
+
+          @if (userService.userProfile()?.role === 'user') {
+          <li>
+            <a class="btn btn-ghost btn-sm text-secondary font-bold" routerLink="/user"
+              routerLinkActive="bg-base-200">
+              <i class="fa-solid fa-pen-to-square"></i> Agendar
+            </a>
+          </li>
+          }
+        </ul>
+      </div>
+
+      <div class="hidden lg:block">
+        <app-theme-switcher></app-theme-switcher>
+      </div>
+
+      <!-- NOTIFICACIONES + AVATAR -->
+      <div class="flex-none gap-2 ml-2">
+        @if (userService.userProfile()) {
+          <!-- NOTIFICACIONES -->
+          <app-notifications-bell></app-notifications-bell>
+
+          <!-- AVATAR DROPDOWN -->
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar border border-base-content/20">
+              <div class="w-9 rounded-full">
+                <img
+                  [src]="userService.userProfile()?.photoUrl || ('https://ui-avatars.com/api/?name=' + (userService.userProfile()?.name || 'User') + '&background=0D9488&color=fff')"
+                  alt="Avatar" />
+              </div>
+            </div>
+            <ul tabindex="0"
+              class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 border border-base-200">
+              <li class="menu-title px-4 py-2 border-b border-base-content/10 mb-2">
+                <span class="font-bold text-base-content block truncate">{{ userService.userProfile()?.name }}</span>
+                <span class="text-xs font-normal opacity-70 uppercase">{{ userService.userProfile()?.role }}</span>
+              </li>
+              <li><a routerLink="/profile">My Profile</a></li>
+
+              <div class="divider my-1"></div>
+              <li><a (click)="logout()" class="text-error font-semibold">Sign Out</a></li>
+            </ul>
+          </div>
+        } @else {
+          <a class="btn btn-primary btn-sm rounded-full px-5" routerLink="/login" *ngIf="router.url !== '/login'">
+            Login
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-side z-50">
+    <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
+
+    <aside class="bg-base-200 min-h-full w-80 flex flex-col">
+
+      <ul class="menu p-4 flex-1 overflow-y-auto">
+
+        @if (userService.userProfile()) {
+        <div class="flex items-center gap-3 mb-6 p-3 bg-base-100/50 rounded-xl border border-base-300">
+          <div class="avatar">
+            <div class="w-10 rounded-full">
+              <img
+                [src]="userService.userProfile()?.photoUrl || ('https://ui-avatars.com/api/?name=' + (userService.userProfile()?.name || 'User') + '&background=0D9488&color=fff')" />
+            </div>
+          </div>
+          <div class="overflow-hidden">
+            <p class="font-bold text-sm truncate">{{ userService.userProfile()?.name }}</p>
+            <p class="text-xs opacity-60 uppercase truncate">{{ userService.userProfile()?.role }}</p>
+          </div>
+        </div>
+        }
+
+        <li *ngIf="isHome()"><a (click)="scrollToSection('home')">Home</a></li>
+        <li *ngIf="isHome()"><a (click)="scrollToSection('profiles')">Profiles</a></li>
+        <li *ngIf="isHome()"><a (click)="scrollToSection('projects')">Projects</a></li>
+        <li *ngIf="!isHome()"><a class="btn btn-ghost" routerLink="/">Back to Home</a></li>
+
+        @if (userService.userProfile()?.role === 'admin' || userService.userProfile()?.role === 'programmer') {
+        <li><a [routerLink]="getDashboardRoute()">Go to Dashboard</a></li>
+        }
+
+        @if (userService.userProfile()?.role === 'user') {
+        <div class="divider my-1 text-xs opacity-50">Services</div>
+        <li>
+          <a routerLink="/user" routerLinkActive="active" class="font-bold text-secondary">
+            <i class="fa-solid fa-pen-to-square"></i> Book Advisory
+          </a>
+        </li>
+        }
+
+        <div class="divider my-2"></div>
+
+        @if (userService.userProfile()) {
+        <li><a (click)="logout()" class="text-error">Sign Out</a></li>
+        } @else {
+        <li><a routerLink="/login" class="active">Sign In</a></li>
+        <li><a routerLink="/register">Register</a></li>
+        }
+      </ul>
+
+      <div class="p-4 border-t border-base-300 bg-base-200 mt-auto">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-semibold opacity-70">Cambiar Tema:</span>
+          <div class="dropdown dropdown-top dropdown-right">
+            <app-theme-switcher></app-theme-switcher>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>

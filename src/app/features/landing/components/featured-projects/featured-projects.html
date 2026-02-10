@@ -1,0 +1,71 @@
+<main class="bg-base-100 py-20">
+  <div class="w-full py-12">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+      <h1 class="text-5xl font-bold mb-4">Featured Projects</h1>
+      <p class="text-lg text-gray-600">
+        Proyectos reales creados por nuestros programadores.
+      </p>
+    </div>
+  </div>
+
+  <section class="w-full py-12 bg-base-100">
+    <div class="max-w-5xl mx-auto px-4">
+
+      @if (loading()) {
+        <p class="text-center text-base-content/60">Cargando proyectos...</p>
+      } @else if (!projects().length) {
+        <p class="text-center text-base-content/60">Aún no hay proyectos destacados.</p>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          @for (project of projects(); track project.id) {
+            <div class="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              @if (project.imageUrl) {
+                <figure class="h-36 overflow-hidden bg-gray-300">
+                  <img [src]="project.imageUrl" [alt]="project.name" class="w-full h-full object-cover" />
+                </figure>
+              }
+
+              <div class="card-body p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h2 class="card-title text-xl">{{ project.name }}</h2>
+                  <div class="badge badge-outline text-sm">{{ project.ownerName }}</div>
+                </div>
+
+                <p class="text-gray-600 text-sm mb-3">{{ project.description }}</p>
+
+                <div class="mb-3">
+                  <div class="flex flex-wrap gap-1">
+                    @for (tech of project.technologies; track tech) {
+                      <span class="badge badge-outline text-xs">{{ tech }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="divider my-1"></div>
+
+                <div class="card-actions justify-between">
+                  @if (project.repoUrl) {
+                    <a [href]="project.repoUrl" target="_blank" class="btn btn-outline btn-sm gap-1">
+                      <i class="fa-brands fa-github"></i> Code
+                    </a>
+                  } @else {
+                    <span class="text-xs opacity-60">Sin repo</span>
+                  }
+
+                  @if (project.demoUrl) {
+                    <a [href]="project.demoUrl" target="_blank" class="btn btn-primary btn-sm gap-1">
+                      <i class="fa-solid fa-arrow-up-right-from-square"></i> Demo
+                    </a>
+                  }
+                  <a class="btn btn-ghost btn-sm" [routerLink]="['/programmers', project.profileId]">
+                    Ver perfil
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</main>

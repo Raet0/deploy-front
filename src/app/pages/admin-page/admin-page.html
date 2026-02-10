@@ -1,0 +1,198 @@
+<app-drawer></app-drawer>
+
+<section class="max-w-6xl mx-auto px-6 py-20 bg-base-100 text-base-content">
+  <h1 class="text-4xl font-extrabold mb-10 text-center">Admin Dashboard</h1>
+
+  <div class="border border-base-content/20 rounded-2xl p-6 shadow-md mb-14 bg-base-200">
+    <h2 class="text-2xl font-semibold mb-6">Crear usuario</h2>
+
+    <form (submit)="$event.preventDefault(); addUser()" class="grid gap-4">
+      <div>
+        <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+               placeholder="Nombre"
+               [(ngModel)]="form().name"
+               (ngModelChange)="validateCreateForm()"
+               name="name" />
+        @if (formErrors().name) { <p class="text-error text-xs mt-1">{{ formErrors().name }}</p> }
+      </div>
+      <div>
+        <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+               placeholder="Email"
+               [(ngModel)]="form().email"
+               (ngModelChange)="validateCreateForm()"
+               name="email" />
+        @if (formErrors().email) { <p class="text-error text-xs mt-1">{{ formErrors().email }}</p> }
+      </div>
+      <div>
+        <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+               placeholder="Password"
+               type="password"
+               [(ngModel)]="form().password"
+               (ngModelChange)="validateCreateForm()"
+               name="password" />
+        @if (formErrors().password) { <p class="text-error text-xs mt-1">{{ formErrors().password }}</p> }
+      </div>
+      <select class="border px-4 py-2 rounded-lg bg-base-100"
+              [(ngModel)]="form().role"
+              (ngModelChange)="validateCreateForm()"
+              name="role">
+        <option value="PROGRAMMER">Programmer</option>
+        <option value="USER">User</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+      <button class="btn btn-primary" [disabled]="saving()">
+        @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
+        Crear
+      </button>
+    </form>
+  </div>
+
+  <div class="border border-base-content/20 rounded-2xl p-6 shadow-md mb-14 bg-base-200">
+    <div class="flex flex-col md:flex-row md:items-end gap-4 mb-6">
+      <div>
+        <label class="text-sm font-semibold">Desde</label>
+        <input class="border px-4 py-2 rounded-lg bg-base-100 w-full" type="date"
+               [ngModel]="reportFrom()" (ngModelChange)="reportFrom.set($event)" />
+      </div>
+      <div>
+        <label class="text-sm font-semibold">Hasta</label>
+        <input class="border px-4 py-2 rounded-lg bg-base-100 w-full" type="date"
+               [ngModel]="reportTo()" (ngModelChange)="reportTo.set($event)" />
+      </div>
+      <div>
+        <label class="text-sm font-semibold">Estado</label>
+        <select class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                [ngModel]="reportStatus()" (ngModelChange)="reportStatus.set($event)">
+          <option value="">Todos</option>
+          <option value="PENDIENTE">PENDIENTE</option>
+          <option value="APROBADA">APROBADA</option>
+          <option value="RECHAZADA">RECHAZADA</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" (click)="loadReports()">Aplicar</button>
+    </div>
+
+    <h2 class="text-2xl font-semibold mb-6">Reportes de asesorías</h2>
+
+    @if (loadingReports()) {
+      <p class="text-base-content/60">Cargando reportes...</p>
+    } @else {
+      <div class="grid md:grid-cols-3 gap-4 mb-8">
+        <div class="p-4 rounded-xl bg-base-100">
+          <p class="text-sm opacity-60">Pendientes</p>
+          <p class="text-3xl font-bold">{{ advisoryTotal('PENDIENTE') }}</p>
+          <div class="h-2 bg-base-300 rounded mt-2">
+            <div class="h-2 bg-warning rounded" [style.width.%]="advisoryPercent('PENDIENTE')"></div>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl bg-base-100">
+          <p class="text-sm opacity-60">Aprobadas</p>
+          <p class="text-3xl font-bold">{{ advisoryTotal('APROBADA') }}</p>
+          <div class="h-2 bg-base-300 rounded mt-2">
+            <div class="h-2 bg-success rounded" [style.width.%]="advisoryPercent('APROBADA')"></div>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl bg-base-100">
+          <p class="text-sm opacity-60">Rechazadas</p>
+          <p class="text-3xl font-bold">{{ advisoryTotal('RECHAZADA') }}</p>
+          <div class="h-2 bg-base-300 rounded mt-2">
+            <div class="h-2 bg-error rounded" [style.width.%]="advisoryPercent('RECHAZADA')"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 mb-6">
+        <button class="btn btn-outline" (click)="downloadAdvisoryPdf()">Descargar PDF asesorías</button>
+        <button class="btn btn-outline" (click)="downloadProjectExcel()">Descargar Excel proyectos</button>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-base-100 rounded-xl p-4">
+          <h3 class="font-semibold mb-3">Detalle asesorías</h3>
+          @for (item of advisorySummary(); track item.programmerName + item.status) {
+            <div class="flex justify-between py-1 text-sm">
+              <span>{{ item.programmerName }} · {{ item.status }}</span>
+              <span class="font-semibold">{{ item.total }}</span>
+            </div>
+          } @empty {
+            <p class="text-base-content/60">Sin datos</p>
+          }
+        </div>
+
+        <div class="bg-base-100 rounded-xl p-4">
+          <h3 class="font-semibold mb-3">Proyectos activos</h3>
+          @for (item of projectSummary(); track item.programmerName) {
+            <div class="flex justify-between py-1 text-sm">
+              <span>{{ item.programmerName }}</span>
+              <span class="font-semibold">{{ item.totalActive }}</span>
+            </div>
+          } @empty {
+            <p class="text-base-content/60">Sin datos</p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (editingId()) {
+    <div class="border border-base-content/20 rounded-2xl p-6 shadow-md mb-14 bg-base-200">
+      <h2 class="text-2xl font-semibold mb-6">Editar usuario</h2>
+
+      <form (submit)="$event.preventDefault(); saveEdit()" class="grid gap-4">
+        <div>
+          <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                 placeholder="Nombre"
+                 [(ngModel)]="editForm().name"
+                 (ngModelChange)="validateEditForm()"
+                 name="editName" />
+          @if (editErrors().name) { <p class="text-error text-xs mt-1">{{ editErrors().name }}</p> }
+        </div>
+        <div>
+          <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                 placeholder="Email"
+                 [(ngModel)]="editForm().email"
+                 (ngModelChange)="validateEditForm()"
+                 name="editEmail" />
+          @if (editErrors().email) { <p class="text-error text-xs mt-1">{{ editErrors().email }}</p> }
+        </div>
+        <select class="border px-4 py-2 rounded-lg bg-base-100"
+                [(ngModel)]="editForm().role"
+                (ngModelChange)="validateEditForm()"
+                name="editRole">
+          <option value="PROGRAMMER">Programmer</option>
+          <option value="USER">User</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+        <div class="flex gap-2">
+          <button class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
+            Guardar
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="cancelEdit()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <h2 class="text-2xl font-semibold mb-6 text-center">Usuarios registrados</h2>
+
+  @if (loadingUsers()) {
+    <p class="text-center text-base-content/60">Cargando...</p>
+  } @else {
+    <div class="grid md:grid-cols-2 gap-6">
+      @for (u of users(); track u.email) {
+        <div class="border rounded-2xl p-6 shadow-md bg-base-200">
+          <h3 class="text-xl font-bold">{{ u.name }}</h3>
+          <p>{{ u.email }}</p>
+          <p class="text-sm text-base-content/70">{{ u.role }}</p>
+          <div class="mt-4 flex gap-2">
+            <button class="btn btn-ghost btn-sm" (click)="startEdit(u)">Editar</button>
+            <button class="btn btn-ghost btn-sm" (click)="deleteUser(u)">Eliminar</button>
+          </div>
+        </div>
+      } @empty {
+        <p class="text-base-content/60 text-center">No hay usuarios registrados.</p>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,155 @@
+<app-drawer></app-drawer>
+
+<section class="max-w-6xl mx-auto px-6 py-20 bg-base-100 text-base-content">
+  <h1 class="text-4xl font-extrabold mb-10 text-center">Agendar Asesoría</h1>
+
+  <div class="grid md:grid-cols-3 gap-4 mb-10">
+    <div class="p-4 rounded-xl bg-base-200">
+      <p class="text-sm opacity-60">Pendientes</p>
+      <p class="text-3xl font-bold">{{ countStatus('PENDIENTE') }}</p>
+    </div>
+    <div class="p-4 rounded-xl bg-base-200">
+      <p class="text-sm opacity-60">Aprobadas</p>
+      <p class="text-3xl font-bold">{{ countStatus('APROBADA') }}</p>
+    </div>
+    <div class="p-4 rounded-xl bg-base-200">
+      <p class="text-sm opacity-60">Rechazadas</p>
+      <p class="text-3xl font-bold">{{ countStatus('RECHAZADA') }}</p>
+    </div>
+  </div>
+
+  <h2 class="text-2xl font-semibold mb-4">Programadores disponibles</h2>
+  @if (loadingProgrammers()) {
+    <p class="text-base-content/60">Cargando programadores...</p>
+  } @else {
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      @for (p of programmers(); track p.id) {
+        <div class="border rounded-2xl p-6 shadow-md bg-base-200">
+          <div class="flex items-center gap-4">
+            <img [src]="p.photoUrl || 'https://via.placeholder.com/64'" class="w-16 h-16 rounded-full object-cover" />
+            <div>
+              <h3 class="text-xl font-bold">{{ p.name }}</h3>
+              <p class="text-base-content/70">{{ p.specialty }}</p>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-2">
+            @if (selectedProgrammer()?.id === p.id) {
+              <button class="btn btn-success btn-sm" disabled>Seleccionado</button>
+              <button class="btn btn-ghost btn-sm" (click)="clearSelection()">Deseleccionar</button>
+            } @else {
+              <button class="btn btn-primary btn-sm" (click)="selectProgrammer(p.id)">Seleccionar</button>
+            }
+            <a class="btn btn-ghost btn-sm" [routerLink]="['/programmers', p.id]">Ver perfil</a>
+          </div>
+        </div>
+      } @empty {
+        <p class="text-base-content/60">No hay programadores registrados.</p>
+      }
+    </div>
+  }
+
+  <div class="border rounded-2xl p-6 shadow-md bg-base-200 mb-10">
+    <h2 class="text-2xl font-semibold mb-4">Disponibilidad</h2>
+    @if (loadingAvailability()) {
+      <p class="text-base-content/60">Cargando disponibilidad...</p>
+    } @else {
+      @for (a of availability(); track a.id) {
+        <div class="border rounded-xl p-3 bg-base-100 mb-2">
+          <p class="font-semibold">{{ a.day }} · {{ a.startTime }} - {{ a.endTime }}</p>
+          <p class="text-sm text-base-content/60">{{ a.modality }}</p>
+        </div>
+      } @empty {
+        <p class="text-base-content/60">Selecciona un programador para ver horarios.</p>
+      }
+    }
+  </div>
+
+  <div class="border rounded-2xl p-6 shadow-md bg-base-200">
+    <h2 class="text-2xl font-semibold mb-6">Formulario de solicitud</h2>
+    <form (submit)="$event.preventDefault(); submit()" class="grid gap-4">
+      <div>
+        <label class="text-sm font-semibold">Programador *</label>
+        <select class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                [(ngModel)]="advisoryForm().programmerProfileId"
+                (ngModelChange)="onProgrammerChange($event)"
+                (blur)="markTouched('programmer')" name="prog">
+          <option value="">-- Selecciona programador --</option>
+          @for (p of programmers(); track p.id) {
+            <option [value]="p.id">{{ p.name }}</option>
+          }
+        </select>
+        @if (touched().programmer && !advisoryForm().programmerProfileId) {
+          <p class="text-error text-xs mt-1">Campo obligatorio</p>
+        }
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold">Tu nombre *</label>
+        <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+               [(ngModel)]="advisoryForm().requesterName"
+               (blur)="markTouched('name')" name="name" />
+        @if (touched().name && !advisoryForm().requesterName) {
+          <p class="text-error text-xs mt-1">Campo obligatorio</p>
+        }
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold">Tu email *</label>
+        <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+               [(ngModel)]="advisoryForm().requesterEmail"
+               (blur)="markTouched('email')" name="email"
+               [readonly]="currentEmail" />
+        @if (touched().email && !advisoryForm().requesterEmail) {
+          <p class="text-error text-xs mt-1">Campo obligatorio</p>
+        }
+        @if (touched().email && advisoryForm().requesterEmail && !isValidEmail(advisoryForm().requesterEmail)) {
+          <p class="text-error text-xs mt-1">Email inválido</p>
+        }
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold">Fecha y hora *</label>
+        <input type="datetime-local" class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+               [(ngModel)]="advisoryForm().scheduledAt"
+               (blur)="markTouched('date')" name="date" />
+        @if (touched().date && !advisoryForm().scheduledAt) {
+          <p class="text-error text-xs mt-1">Campo obligatorio</p>
+        }
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold">Comentario (opcional)</label>
+        <textarea class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                  [(ngModel)]="advisoryForm().comment" name="comment"></textarea>
+      </div>
+
+      <button class="btn btn-primary" [disabled]="sending()">
+        @if (sending()) { <span class="loading loading-spinner loading-xs"></span> }
+        Enviar solicitud
+      </button>
+    </form>
+  </div>
+
+  <div class="mt-12">
+    <h2 class="text-2xl font-semibold mb-4">Mis solicitudes</h2>
+
+    @if (loadingAdvisories()) {
+      <p class="text-base-content/60">Cargando solicitudes...</p>
+    } @else {
+      <div class="grid gap-4">
+        @for (a of myAdvisories(); track a.id) {
+          <div class="border rounded-2xl p-4 bg-base-200">
+            <p class="font-semibold">{{ a.programmerName }}</p>
+            <p class="text-sm text-base-content/60">{{ a.scheduledAt }}</p>
+            <p class="mt-2">Estado: <span class="font-semibold">{{ a.status }}</span></p>
+            @if (a.response) {
+              <p class="text-base-content/70 mt-2">Respuesta: {{ a.response }}</p>
+            }
+          </div>
+        } @empty {
+          <p class="text-base-content/60">No hay solicitudes registradas.</p>
+        }
+      </div>
+    }
+  </div>
+</section>

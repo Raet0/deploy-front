@@ -1,0 +1,255 @@
+<app-drawer></app-drawer>
+
+<section class="max-w-6xl mx-auto px-6 py-16 bg-base-100">
+  <div class="grid md:grid-cols-3 gap-4 mb-10">
+    <div class="p-4 bg-base-200 rounded-xl">
+      <p class="text-sm opacity-60">Pendientes</p>
+      <p class="text-3xl font-bold">{{ advisoryCount('PENDIENTE') }}</p>
+    </div>
+    <div class="p-4 bg-base-200 rounded-xl">
+      <p class="text-sm opacity-60">Aprobadas</p>
+      <p class="text-3xl font-bold">{{ advisoryCount('APROBADA') }}</p>
+    </div>
+    <div class="p-4 bg-base-200 rounded-xl">
+      <p class="text-sm opacity-60">Rechazadas</p>
+      <p class="text-3xl font-bold">{{ advisoryCount('RECHAZADA') }}</p>
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-xl mb-8">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">Mi Perfil</h2>
+
+      <div class="form-control mb-4">
+        <label class="label"><span class="label-text font-semibold">Especialidad</span></label>
+        <input class="input input-bordered placeholder:text-base-content/40"
+               placeholder="Backend Developer"
+               [(ngModel)]="profileForm().specialty" />
+        @if (profileErrors().specialty) { <p class="text-error text-xs mt-1">{{ profileErrors().specialty }}</p> }
+      </div>
+
+      <div class="form-control mb-4">
+        <label class="label"><span class="label-text font-semibold">Descripción</span></label>
+        <textarea class="textarea textarea-bordered h-24 placeholder:text-base-content/40"
+                  placeholder="Cuéntanos sobre ti..."
+                  [(ngModel)]="profileForm().description"></textarea>
+        @if (profileErrors().description) { <p class="text-error text-xs mt-1">{{ profileErrors().description }}</p> }
+      </div>
+
+      <div class="form-control mb-4">
+        <label class="label"><span class="label-text font-semibold">Foto de perfil</span></label>
+        <input type="file" class="file-input file-input-bordered w-full" (change)="onProfilePhotoSelected($event)" />
+        @if (uploadingProfilePhoto()) {
+          <p class="text-xs mt-1 opacity-60">Subiendo foto...</p>
+        }
+        @if (profileForm().photoUrl) {
+          <img [src]="profileForm().photoUrl" class="w-24 h-24 rounded-xl mt-2 object-cover" />
+        }
+      </div>
+
+      <div class="mb-4">
+        <h3 class="font-semibold mb-2">Habilidades</h3>
+        <div class="flex flex-wrap gap-2 mb-2">
+          @for (skill of profileForm().skills; track $index) {
+            <span class="badge badge-primary gap-2">
+              {{ skill }}
+              <button class="btn btn-ghost btn-xs" (click)="removeSkill($index)">✕</button>
+            </span>
+          }
+        </div>
+        <div class="flex gap-2">
+          <input
+            class="input input-bordered flex-1 placeholder:text-base-content/40"
+            placeholder="Nueva habilidad"
+            [ngModel]="newSkill()"
+            (ngModelChange)="newSkill.set($event)" />
+          <button class="btn btn-primary transition-transform hover:scale-[1.02] active:scale-[0.98]" (click)="addSkill()">Agregar</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h3 class="font-semibold mb-2">Redes Sociales</h3>
+        @for (s of profileForm().socials; track $index) {
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 items-center">
+            <select class="select select-bordered w-full" [(ngModel)]="s.name">
+              <option value="">Selecciona tipo</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="email">Email</option>
+              <option value="instagram">Instagram</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="github">GitHub</option>
+              <option value="twitter">Twitter/X</option>
+              <option value="facebook">Facebook</option>
+              <option value="tiktok">TikTok</option>
+            </select>
+            <input
+              class="input input-bordered w-full md:col-span-1 placeholder:text-base-content/40"
+              [placeholder]="getPlaceholderForSocial(s.name)"
+              [(ngModel)]="s.url" />
+            <button class="btn btn-ghost btn-sm" (click)="removeSocial($index)">Quitar</button>
+          </div>
+        }
+        <button class="btn btn-outline btn-sm gap-2 transition-transform hover:scale-[1.02] active:scale-[0.98]" (click)="addSocial()">Agregar red social</button>
+      </div>
+
+      <div class="card-actions justify-end mt-6">
+        <button class="btn btn-primary transition-transform hover:scale-[1.02] active:scale-[0.98]" (click)="saveProfile()" [disabled]="savingProfile()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-xl mb-8">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">Proyectos</h2>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <input class="input input-bordered placeholder:text-base-content/40" placeholder="Nombre" [(ngModel)]="projectForm().name" />
+        <input class="input input-bordered placeholder:text-base-content/40" placeholder="Descripción" [(ngModel)]="projectForm().description" />
+        <select class="select select-bordered" [(ngModel)]="projectForm().participation">
+          @for (p of participations; track p) { <option [value]="p">{{ p }}</option> }
+        </select>
+        <select class="select select-bordered" [(ngModel)]="projectForm().section">
+          @for (s of sections; track s) { <option [value]="s">{{ s }}</option> }
+        </select>
+        <input class="input input-bordered placeholder:text-base-content/40" placeholder="Repo URL" [(ngModel)]="projectForm().repoUrl" />
+        <input class="input input-bordered placeholder:text-base-content/40" placeholder="Demo URL" [(ngModel)]="projectForm().demoUrl" />
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-semibold">Imagen del proyecto</label>
+          <input type="file" class="file-input file-input-bordered w-full" (change)="onProjectImageSelected($event)" />
+          @if (uploadingProjectImage()) {
+            <p class="text-xs mt-1 opacity-60">Subiendo imagen...</p>
+          }
+          @if (projectForm().imageUrl) {
+            <img [src]="projectForm().imageUrl" class="w-full max-w-xs rounded-xl mt-2 object-cover" />
+          }
+        </div>
+
+        <label class="flex items-center gap-2">
+          <input type="checkbox" [(ngModel)]="projectForm().active" />
+          Activo
+        </label>
+      </div>
+
+      <div class="mb-4">
+        <div class="flex flex-wrap gap-2 mb-2">
+          @for (tech of projectForm().technologies; track $index) {
+            <span class="badge badge-primary">
+              {{ tech }}
+              <button class="btn btn-ghost btn-xs" (click)="removeTechnology($index)">✕</button>
+            </span>
+          }
+        </div>
+        <div class="flex gap-2">
+          <input class="input input-bordered flex-1 placeholder:text-base-content/40" placeholder="Nueva tecnología"
+                 [ngModel]="newTech()" (ngModelChange)="newTech.set($event)" />
+          <button class="btn btn-primary transition-transform hover:scale-[1.02] active:scale-[0.98]" (click)="addTechnology()">Agregar</button>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button class="btn btn-primary transition-transform hover:scale-[1.02] active:scale-[0.98]" (click)="saveProject()" [disabled]="savingProject()">Guardar proyecto</button>
+        <button class="btn btn-ghost" type="button" (click)="resetProjectForm()">Limpiar</button>
+      </div>
+
+      <div class="divider"></div>
+
+      @if (loadingProjects()) {
+        <p class="text-base-content/60">Cargando proyectos...</p>
+      } @else {
+        <div class="grid md:grid-cols-2 gap-4">
+          @for (p of projects(); track p.id) {
+            <div class="p-4 bg-base-100 rounded-xl">
+              <h3 class="font-semibold">{{ p.name }}</h3>
+              <p class="text-sm opacity-60">{{ p.description }}</p>
+              <div class="mt-3 flex gap-2">
+                <button class="btn btn-ghost btn-sm" (click)="editProject(p)">Editar</button>
+                <button class="btn btn-ghost btn-sm" (click)="deleteProject(p.id)">Eliminar</button>
+              </div>
+            </div>
+          } @empty {
+            <p class="text-base-content/60">No hay proyectos.</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-xl mb-8">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">Disponibilidad</h2>
+
+      <div class="grid md:grid-cols-4 gap-4 mb-6">
+        <select class="select select-bordered" [(ngModel)]="availabilityForm().day">
+          @for (d of weekdays; track d) { <option [value]="d">{{ d }}</option> }
+        </select>
+        <input class="input input-bordered" type="time" [(ngModel)]="availabilityForm().startTime" />
+        <input class="input input-bordered" type="time" [(ngModel)]="availabilityForm().endTime" />
+        <select class="select select-bordered" [(ngModel)]="availabilityForm().modality">
+          @for (m of modalities; track m) { <option [value]="m">{{ m }}</option> }
+        </select>
+      </div>
+
+      <div class="flex gap-2">
+        <button class="btn btn-primary transition-transform hover:scale-[1.02] active:scale-[0.98]" (click)="saveAvailability()" [disabled]="savingAvailability()">Agregar</button>
+        <button class="btn btn-ghost" type="button" (click)="resetAvailabilityForm()">Limpiar</button>
+      </div>
+
+      <div class="divider"></div>
+
+      @if (loadingAvailability()) {
+        <p class="text-base-content/60">Cargando disponibilidad...</p>
+      } @else {
+        <div class="grid md:grid-cols-2 gap-4">
+          @for (a of availabilities(); track a.id) {
+            <div class="p-4 bg-base-100 rounded-xl">
+              <p class="font-semibold">{{ a.day }}</p>
+              <p class="text-sm opacity-70">{{ a.startTime }} - {{ a.endTime }}</p>
+              <p class="text-sm opacity-70">{{ a.modality }}</p>
+              <button class="btn btn-ghost btn-sm mt-2" (click)="deleteAvailability(a.id)">Eliminar</button>
+            </div>
+          } @empty {
+            <p class="text-base-content/60">No hay horarios.</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">Solicitudes de asesoría</h2>
+
+      @if (loadingAdvisories()) {
+        <p class="text-base-content/60">Cargando asesorías...</p>
+      } @else {
+        <div class="grid md:grid-cols-2 gap-4">
+          @for (a of advisories(); track a.id) {
+            <div class="p-4 bg-base-100 rounded-xl">
+              <p class="font-semibold">{{ a.requesterName }}</p>
+              <p class="text-sm opacity-60">{{ a.scheduledAt }}</p>
+              <p class="text-sm">Estado: <span class="font-semibold">{{ a.status }}</span></p>
+              <button class="btn btn-primary btn-sm mt-3" (click)="selectAdvisory(a)">Ver</button>
+            </div>
+          } @empty {
+            <p class="text-base-content/60">No hay solicitudes.</p>
+          }
+        </div>
+      }
+
+      @if (selectedAdvisory()) {
+        <div class="divider"></div>
+        <div>
+          <h3 class="font-semibold mb-2">Responder</h3>
+          <textarea class="textarea textarea-bordered w-full h-24 placeholder:text-base-content/40"
+            [ngModel]="advisoryResponse()" (ngModelChange)="advisoryResponse.set($event)"
+            placeholder="Respuesta para el usuario"></textarea>
+          <div class="flex gap-2 mt-3">
+            <button class="btn btn-success" (click)="approveAdvisory(selectedAdvisory()!)">Aprobar</button>
+            <button class="btn btn-error" (click)="rejectAdvisory(selectedAdvisory()!)">Rechazar</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

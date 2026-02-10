@@ -1,0 +1,107 @@
+<app-drawer></app-drawer>
+
+<section class="max-w-5xl mx-auto px-6 py-20 text-base-content">
+  @if (profile()) {
+    <div class="bg-base-200 rounded-3xl shadow-xl overflow-hidden">
+      <div class="h-40 bg-gradient-to-r from-primary/80 to-secondary/80"></div>
+
+      <div class="px-8 pb-8">
+        <div class="-mt-12 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="avatar border-4 border-base-100 rounded-full shadow-lg">
+              <div class="w-24 rounded-full">
+                <img
+                  [src]="form().photoUrl || 'https://ui-avatars.com/api/?name=' + profile()!.name + '&background=0D9488&color=fff&size=128'"
+                  alt="Avatar"
+                />
+              </div>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold">{{ profile()!.name }}</h1>
+              <p class="text-sm opacity-70">{{ profile()!.email }}</p>
+
+              <div class="flex items-center gap-2 mt-2">
+                <span class="badge" [ngClass]="roleBadge(profile()!.role)">
+                  {{ roleLabel(profile()!.role) }}
+                </span>
+                <button class="btn btn-outline btn-xs" (click)="toggleEdit()">
+                  {{ editing() ? 'Cancelar' : 'Editar perfil' }}
+                </button>
+                <button class="btn btn-primary btn-xs" (click)="copyProfile()">Compartir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @if (editing()) {
+          <div class="mt-8 grid gap-4">
+            <div>
+              <label class="text-sm font-semibold">Nombre *</label>
+              <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                     [(ngModel)]="form().name" name="name" />
+            </div>
+
+            <div>
+              <label class="text-sm font-semibold">Titular</label>
+              <input class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                     [(ngModel)]="form().headline" name="headline" />
+            </div>
+
+            <div>
+              <label class="text-sm font-semibold">Biografía</label>
+              <textarea class="border px-4 py-2 rounded-lg bg-base-100 w-full"
+                        [(ngModel)]="form().bio" name="bio"></textarea>
+            </div>
+
+            <div>
+              <label class="text-sm font-semibold">Foto de perfil</label>
+              <input type="file" class="file-input file-input-bordered w-full"
+                     (change)="onFileSelected($event)" />
+              @if (uploading()) {
+                <p class="text-xs mt-1 opacity-60">Subiendo foto...</p>
+              }
+            </div>
+
+            <button class="btn btn-primary w-fit" (click)="saveProfile()" [disabled]="saving()">
+              @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
+              Guardar cambios
+            </button>
+          </div>
+        } @else {
+          <div class="mt-8 grid md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl bg-base-100 shadow">
+              <p class="text-xs uppercase opacity-60">Estado</p>
+              <p class="font-semibold">Activo</p>
+            </div>
+            <div class="p-4 rounded-xl bg-base-100 shadow">
+              <p class="text-xs uppercase opacity-60">Miembro desde</p>
+              <p class="font-semibold">{{ formatDate(profile()!.createdAt) }}</p>
+            </div>
+            <div class="p-4 rounded-xl bg-base-100 shadow">
+              <p class="text-xs uppercase opacity-60">Rol</p>
+              <p class="font-semibold">{{ roleLabel(profile()!.role) }}</p>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-3">Sobre mí</h2>
+            <p class="opacity-80">{{ profile()!.bio || 'Sin biografía todavía.' }}</p>
+          </div>
+
+          <div class="mt-10 grid md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-base-100 shadow">
+              <h3 class="font-semibold mb-2">Contacto</h3>
+              <p class="text-sm opacity-70">Email: {{ profile()!.email }}</p>
+            </div>
+            <div class="p-4 rounded-xl bg-base-100 shadow">
+              <h3 class="font-semibold mb-2">Titular</h3>
+              <p class="text-sm opacity-70">{{ profile()!.headline || 'Sin titular' }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="text-center opacity-70">Cargando perfil...</div>
+  }
+</section>
