@@ -32,6 +32,7 @@ Frontend (servicios y paginas que consumen endpoints):
 ### Autenticacion
 
 Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/AuthController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/AuthController.java)
+
 Frontend: [icc-portafolio-frontend/src/app/core/services/auth.service.ts](icc-portafolio-frontend/src/app/core/services/auth.service.ts)
 
 * `POST /api/auth/login`
@@ -51,6 +52,7 @@ Frontend: [icc-portafolio-frontend/src/app/core/services/auth.service.ts](icc-po
 ### Perfil de usuario autenticado
 
 Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/UserProfileController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/UserProfileController.java)
+
 Frontend: [icc-portafolio-frontend/src/app/core/services/user.service.ts](icc-portafolio-frontend/src/app/core/services/user.service.ts)
 
 * `GET /api/users/me`
@@ -66,6 +68,7 @@ Frontend: [icc-portafolio-frontend/src/app/core/services/user.service.ts](icc-po
 ### Administracion de usuarios (solo admin)
 
 Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/AdminController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/AdminController.java)
+
 Frontend: [icc-portafolio-frontend/src/app/core/services/user.service.ts](icc-portafolio-frontend/src/app/core/services/user.service.ts)
 
 * `POST /api/admin/users`
@@ -89,6 +92,7 @@ Frontend: [icc-portafolio-frontend/src/app/core/services/user.service.ts](icc-po
 ### Reportes (PDF y Excel)
 
 Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/ReportController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/ReportController.java)
+
 Frontend: [icc-portafolio-frontend/src/app/core/services/report.service.ts](icc-portafolio-frontend/src/app/core/services/report.service.ts)
 
 * `GET /api/reports/advisories?from=&to=&status=`
@@ -117,6 +121,7 @@ Como se descargan PDF y Excel:
 ### Programador (privado)
 
 Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/ProgrammerController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/ProgrammerController.java)
+
 Frontend: [icc-portafolio-frontend/src/app/core/services/programmer.service.ts](icc-portafolio-frontend/src/app/core/services/programmer.service.ts)
 
 * `GET /api/programmer/me`
@@ -172,6 +177,7 @@ Frontend: [icc-portafolio-frontend/src/app/core/services/programmer.service.ts](
 ### Publico (landing y perfil publico)
 
 Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/PublicController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/PublicController.java)
+
 Frontend: [icc-portafolio-frontend/src/app/core/services/programmer.service.ts](icc-portafolio-frontend/src/app/core/services/programmer.service.ts)
 
 * `GET /api/programmers?page=&size=`
@@ -205,6 +211,7 @@ Frontend: [icc-portafolio-frontend/src/app/core/services/programmer.service.ts](
 Archivos:
 
 * Servicio: [icc-portafolio-frontend/src/app/core/services/notifications.ts](icc-portafolio-frontend/src/app/core/services/notifications.ts)
+
 * Pantalla: [icc-portafolio-frontend/src/app/pages/notifications-page/notifications-page.ts](icc-portafolio-frontend/src/app/pages/notifications-page/notifications-page.ts)
 
 Como funciona:
