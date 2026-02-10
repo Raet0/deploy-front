@@ -1,59 +1,246 @@
-# TrabajoIntercicloPortafolioWebCompartido
+## Guia sencilla para entender el codigo
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.6.
+Esta guia esta pensada para principiantes. Explica que hace cada endpoint, cuando se llama y en que archivo esta.
 
-## Development server
+---
 
-To start a local development server, run:
+## 1) Donde esta cada cosa (mapa rapido)
 
-```bash
-ng serve
-```
+Backend (controladores REST):
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+* [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/AuthController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/AuthController.java)
+* [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/UserProfileController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/UserProfileController.java)
+* [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/AdminController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/AdminController.java)
+* [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/ReportController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/ReportController.java)
+* [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/ProgrammerController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/ProgrammerController.java)
+* [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/PublicController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/PublicController.java)
 
-## Code scaffolding
+Frontend (servicios y paginas que consumen endpoints):
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+* [icc-portafolio-frontend/src/app/core/services/auth.service.ts](icc-portafolio-frontend/src/app/core/services/auth.service.ts)
+* [icc-portafolio-frontend/src/app/core/services/programmer.service.ts](icc-portafolio-frontend/src/app/core/services/programmer.service.ts)
+* [icc-portafolio-frontend/src/app/core/services/report.service.ts](icc-portafolio-frontend/src/app/core/services/report.service.ts)
+* [icc-portafolio-frontend/src/app/core/services/notifications.ts](icc-portafolio-frontend/src/app/core/services/notifications.ts)
+* [icc-portafolio-frontend/src/app/pages/user-page/user-page.ts](icc-portafolio-frontend/src/app/pages/user-page/user-page.ts)
+* [icc-portafolio-frontend/src/app/pages/programmer-page/programmer-page.ts](icc-portafolio-frontend/src/app/pages/programmer-page/programmer-page.ts)
+* [icc-portafolio-frontend/src/app/pages/notifications-page/notifications-page.ts](icc-portafolio-frontend/src/app/pages/notifications-page/notifications-page.ts)
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 2) Endpoints explicados (que hacen y cuando se llaman)
 
-```bash
-ng generate --help
-```
+### Autenticacion
 
-## Building
+Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/AuthController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/AuthController.java)
+Frontend: [icc-portafolio-frontend/src/app/core/services/auth.service.ts](icc-portafolio-frontend/src/app/core/services/auth.service.ts)
 
-To build the project run:
+* `POST /api/auth/login`
+  * Que hace: valida email y password, devuelve un JWT.
+  * Cuando se llama: al iniciar sesion normal.
 
-```bash
-ng build
-```
+* `POST /api/auth/google`
+  * Que hace: valida el idToken de Google y devuelve un JWT.
+  * Cuando se llama: al hacer login con Google.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+* `POST /api/auth/register-admin`
+  * Que hace: crea el primer admin del sistema.
+  * Cuando se llama: al usar la pantalla de registro (solo una vez).
 
-## Running unit tests
+---
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Perfil de usuario autenticado
 
-```bash
-ng test
-```
+Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/UserProfileController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/user/controller/UserProfileController.java)
+Frontend: [icc-portafolio-frontend/src/app/core/services/user.service.ts](icc-portafolio-frontend/src/app/core/services/user.service.ts)
 
-## Running end-to-end tests
+* `GET /api/users/me`
+  * Que hace: trae el perfil del usuario logueado.
+  * Cuando se llama: al abrir el perfil de usuario.
 
-For end-to-end (e2e) testing, run:
+* `PUT /api/users/me`
+  * Que hace: actualiza datos del perfil.
+  * Cuando se llama: al guardar cambios en el perfil.
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Administracion de usuarios (solo admin)
 
-## Additional Resources
+Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/AdminController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/AdminController.java)
+Frontend: [icc-portafolio-frontend/src/app/core/services/user.service.ts](icc-portafolio-frontend/src/app/core/services/user.service.ts)
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+* `POST /api/admin/users`
+  * Que hace: crea un usuario nuevo.
+  * Cuando se llama: al crear usuario en el dashboard admin.
+
+* `GET /api/admin/users?page=&size=`
+  * Que hace: lista usuarios con paginacion.
+  * Cuando se llama: al cargar la lista de usuarios.
+
+* `PUT /api/admin/users/{id}`
+  * Que hace: edita un usuario.
+  * Cuando se llama: al guardar la edicion.
+
+* `DELETE /api/admin/users/{id}`
+  * Que hace: elimina un usuario.
+  * Cuando se llama: al confirmar eliminar.
+
+---
+
+### Reportes (PDF y Excel)
+
+Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/ReportController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/admin/controller/ReportController.java)
+Frontend: [icc-portafolio-frontend/src/app/core/services/report.service.ts](icc-portafolio-frontend/src/app/core/services/report.service.ts)
+
+* `GET /api/reports/advisories?from=&to=&status=`
+  * Que hace: devuelve resumen de asesorias.
+  * Cuando se llama: al aplicar filtros en el dashboard admin.
+
+* `GET /api/reports/projects`
+  * Que hace: devuelve resumen de proyectos activos.
+  * Cuando se llama: al abrir el dashboard admin.
+
+* `GET /api/reports/advisories/pdf`
+  * Que hace: genera PDF de asesorias.
+  * Cuando se llama: al descargar el PDF.
+
+* `GET /api/reports/projects/excel`
+  * Que hace: genera Excel de proyectos.
+  * Cuando se llama: al descargar el Excel.
+
+Como se descargan PDF y Excel:
+
+* En el frontend se usa `responseType: 'blob'` para recibir el archivo.
+* Luego el navegador puede abrirlo o descargarlo.
+
+---
+
+### Programador (privado)
+
+Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/ProgrammerController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/ProgrammerController.java)
+Frontend: [icc-portafolio-frontend/src/app/core/services/programmer.service.ts](icc-portafolio-frontend/src/app/core/services/programmer.service.ts)
+
+* `GET /api/programmer/me`
+  * Que hace: trae el perfil del programador logueado.
+  * Cuando se llama: al abrir el panel de programador.
+
+* `PUT /api/programmer/profile`
+  * Que hace: actualiza el perfil del programador.
+  * Cuando se llama: al guardar cambios de perfil.
+
+* `POST /api/programmer/projects`
+  * Que hace: crea un proyecto.
+  * Cuando se llama: al guardar un proyecto nuevo.
+
+* `GET /api/programmer/projects`
+  * Que hace: lista proyectos del programador.
+  * Cuando se llama: al cargar la seccion de proyectos.
+
+* `PUT /api/programmer/projects/{id}`
+  * Que hace: edita un proyecto.
+  * Cuando se llama: al guardar edicion.
+
+* `DELETE /api/programmer/projects/{id}`
+  * Que hace: elimina un proyecto.
+  * Cuando se llama: al confirmar eliminar.
+
+* `POST /api/programmer/availability`
+  * Que hace: agrega disponibilidad.
+  * Cuando se llama: al agregar un horario.
+
+* `GET /api/programmer/availability`
+  * Que hace: lista la disponibilidad.
+  * Cuando se llama: al cargar la seccion de disponibilidad.
+
+* `DELETE /api/programmer/availability/{id}`
+  * Que hace: elimina un horario.
+  * Cuando se llama: al confirmar eliminar.
+
+* `GET /api/programmer/advisories`
+  * Que hace: lista asesorias recibidas por el programador.
+  * Cuando se llama: al abrir la seccion de asesorias.
+
+* `PATCH /api/programmer/advisories/{id}`
+  * Que hace: aprueba o rechaza una asesoria y guarda respuesta.
+  * Cuando se llama: al aprobar o rechazar en el panel.
+
+* `GET /api/programmer/advisories/requester`
+  * Que hace: lista asesorias del usuario logueado.
+  * Cuando se llama: desde notificaciones o panel de usuario.
+
+---
+
+### Publico (landing y perfil publico)
+
+Backend: [icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/PublicController.java](icc-portafolio-backend/src/main/java/ec/edu/ups/icc/portafolio_backend/programmer/controller/PublicController.java)
+Frontend: [icc-portafolio-frontend/src/app/core/services/programmer.service.ts](icc-portafolio-frontend/src/app/core/services/programmer.service.ts)
+
+* `GET /api/programmers?page=&size=`
+  * Que hace: lista programadores publicos.
+  * Cuando se llama: en landing y en la lista de perfiles.
+
+* `GET /api/programmers/{id}`
+  * Que hace: muestra el perfil publico de un programador.
+  * Cuando se llama: al abrir un perfil publico.
+
+* `GET /api/programmers/{id}/projects`
+  * Que hace: lista proyectos publicos del programador.
+  * Cuando se llama: dentro del perfil publico.
+
+* `GET /api/programmers/{id}/availability`
+  * Que hace: lista disponibilidad publica.
+  * Cuando se llama: al seleccionar un programador para asesoria.
+
+* `POST /api/advisories`
+  * Que hace: crea una solicitud de asesoria.
+  * Cuando se llama: al enviar el formulario de asesoria.
+
+* `GET /api/advisories?email=`
+  * Que hace: lista asesorias de un email.
+  * Cuando se llama: al cargar el estado de solicitudes.
+
+---
+
+## 3) Panel de notificaciones (explicado sencillo)
+
+Archivos:
+
+* Servicio: [icc-portafolio-frontend/src/app/core/services/notifications.ts](icc-portafolio-frontend/src/app/core/services/notifications.ts)
+* Pantalla: [icc-portafolio-frontend/src/app/pages/notifications-page/notifications-page.ts](icc-portafolio-frontend/src/app/pages/notifications-page/notifications-page.ts)
+
+Como funciona:
+
+* Si el usuario es programador, el servicio pide `/api/programmer/advisories` y muestra solo las PENDIENTE.
+* Si el usuario es user, el servicio pide `/api/programmer/advisories/requester` y muestra solo las que ya cambiaron de estado.
+* Las notificaciones se construyen en el frontend, no hay un endpoint exclusivo de notificaciones.
+* En la pantalla hay un TODO: aun no se envia la respuesta al backend desde esa vista.
+
+---
+
+## 4) Validacion de fecha de solicitudes
+
+Donde se valida ahora:
+
+* En el frontend, antes de crear la asesoria.
+* Archivo: [icc-portafolio-frontend/src/app/pages/user-page/user-page.ts](icc-portafolio-frontend/src/app/pages/user-page/user-page.ts)
+
+Que se valida:
+
+* Que la fecha sea futura.
+* Que la fecha este dentro de la disponibilidad del programador.
+
+Por que deberia validarse tambien en backend:
+
+* Un usuario puede saltarse el frontend usando Postman o modificando el navegador.
+* Si el backend valida, se evita guardar asesorias con fechas invalidas.
+* La seguridad real siempre debe estar en el servidor.
+
+---
+
+## 5) Rutas del frontend que activan los endpoints
+
+Definidas en: [icc-portafolio-frontend/src/app/app.routes.ts](icc-portafolio-frontend/src/app/app.routes.ts)
+
+* `/admin` (solo admin)
+* `/programmer` (solo programmer)
+* `/user` (solo user)
+* `/notifications` (cualquier usuario autenticado)
